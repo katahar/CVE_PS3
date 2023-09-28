@@ -99,7 +99,7 @@ finalized_img  = cv2.addWeighted(finalized_img_blurred, 0.75, finalized_img_shar
 # finalized_img = cv2.bilateralFilter(img, 20,30,120)
 
 
-# ------------------
+# -----------IGNORE-------
 # test_img  = cv2.medianBlur(cv2.medianBlur(img,3),5)
 # test_img2 = cv2.medianBlur(img,5)
 # test_img3 = cv2.medianBlur(cv2.medianBlur(img,5),3)
@@ -128,6 +128,7 @@ finalized_img  = cv2.addWeighted(finalized_img_blurred, 0.75, finalized_img_shar
 # test_img  = cv2.addWeighted(finalized_img_blurred, 0.75, finalized_img_sharpened, 0.25, 0)
 # test_img2 = cv2.addWeighted(finalized_img_blurred, 0.6, finalized_img_sharpened, 0.4, 0)
 # test_img3 = cv2.addWeighted(finalized_img_blurred, 0.9, finalized_img_sharpened, 0.1, 0)
+# -----------IGNORE-------
 
 cv2.imwrite(input_file+"-improved"+extension, finalized_img)
 

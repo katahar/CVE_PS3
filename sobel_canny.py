@@ -26,12 +26,10 @@ import numpy as np
 sobel_h_kern = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
 sobel_v_kern = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
 
-def sobel(img):
-    graysc =  cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    sobel_h = cv2.filter2D(graysc, -1, sobel_h_kern)
-    sobel_v = cv2.filter2D(graysc, -1, sobel_v_kern)
-    img_out = sobel_h + sobel_v
-    return img_out
+thresh1 = 50
+thresh2 = 200
+aperture_sz = 3
+l2_grad = 0
 
 
 # get file input
@@ -42,22 +40,86 @@ for file_names in os.listdir():
 input_file = input("\n input file: ")
 img = cv2.imread(input_file)
 
+# creating windows
+cv2.namedWindow("input", cv2.WINDOW_NORMAL )
+cv2.namedWindow("sobel", cv2.WINDOW_NORMAL )
+cv2.namedWindow("canny", cv2.WINDOW_NORMAL )
+
 # extracting extension and file base name
 extension = input_file[-4:]
 input_file = input_file[:-4]
 
 
+
+def sobel(img):
+    graysc =  cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    sobel_h = cv2.filter2D(graysc, -1, sobel_h_kern)
+    sobel_v = cv2.filter2D(graysc, -1, sobel_v_kern)
+    img_out = sobel_h + sobel_v
+    return img_out
+
 # sobel filter
 sobel_img = sobel(img)
+canny_img = img
+
+# lower bound
+def tresh1_callback(val):
+    # print("trackbar updated!")
+    thresh1 = min(val,thresh2)
+    cv2.setTrackbarPos('Threshold 1', 'canny', thresh1)
+    render_img()
+
+def tresh2_callback(val):
+    # print("trackbar updated!")
+    thresh2 = max(val,thresh1)
+    cv2.setTrackbarPos('Threshold 2', 'canny', thresh2)
+    render_img()
 
 
-cv2.namedWindow("input", cv2.WINDOW_NORMAL )
-cv2.namedWindow("sobel", cv2.WINDOW_NORMAL )
-# cv2.namedWindow("canny", cv2.WINDOW_NORMAL )
+def aperture_callback(val):
+    # print("trackbar updated!")
+    if(val%2 == 0):
+        val = val+1 
+    if(val > 7):
+        val = 7
+    if(val < 3):
+        val = 3
+    cv2.setTrackbarPos('Aperture Size', 'canny', val)
+    aperture_sz = val
+    render_img()
+
+
+def l2_callback(val):
+    # print("trackbar updated!")
+    l2_grad = val
+    render_img()
+
+def render_img():
+    canny_img = cv2.Canny(img,thresh1,thresh2,apertureSize=aperture_sz, L2gradient=l2_grad)
+    cv2.imshow("canny", canny_img)
+
+
+
+# canny
+cv2.createTrackbar('Threshold 1', 'canny', 0, 255, tresh1_callback )
+cv2.createTrackbar('Threshold 2', 'canny', 0, 255, tresh2_callback )
+cv2.createTrackbar('Aperture Size', 'canny', 3, 8, aperture_callback )
+cv2.createTrackbar('L2 Gradient', 'canny', 0, 1, l2_callback )
+
+
+cv2.setTrackbarPos('Threshold 1', 'canny', thresh1)
+cv2.setTrackbarPos('Threshold 2', 'canny', thresh2)
+cv2.setTrackbarPos('Aperture Size', 'canny', aperture_sz)
+cv2.setTrackbarPos('L2 Gradient', 'canny', l2_grad)
+
+
+
+
+
 
 cv2.imshow("input", img)
 cv2.imshow("sobel", sobel_img)
-# cv2.imshow("canny", canny_img)
+cv2.imshow("canny", canny_img)
 
 
 # cv2.imwrite(input_file+"-sobel"+extension, sobel_img)
