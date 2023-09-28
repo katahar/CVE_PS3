@@ -62,68 +62,63 @@ def sobel(img):
 sobel_img = sobel(img)
 canny_img = img
 
-# lower bound
-def tresh1_callback(val):
-    # print("trackbar updated!")
-    thresh1 = min(val,thresh2)
-    cv2.setTrackbarPos('Threshold 1', 'canny', thresh1)
-    render_img()
-
-def tresh2_callback(val):
-    # print("trackbar updated!")
-    thresh2 = max(val,thresh1)
-    cv2.setTrackbarPos('Threshold 2', 'canny', thresh2)
-    render_img()
-
-
-def aperture_callback(val):
-    # print("trackbar updated!")
-    if(val%2 == 0):
-        val = val+1 
-    if(val > 7):
-        val = 7
-    if(val < 3):
-        val = 3
-    cv2.setTrackbarPos('Aperture Size', 'canny', val)
-    aperture_sz = val
-    render_img()
-
-
-def l2_callback(val):
-    # print("trackbar updated!")
-    l2_grad = val
-    render_img()
-
-def render_img():
-    canny_img = cv2.Canny(img,thresh1,thresh2,apertureSize=aperture_sz, L2gradient=l2_grad)
-    cv2.imshow("canny", canny_img)
-
+def fake_cb(val):
+    pass
 
 
 # canny
-cv2.createTrackbar('Threshold 1', 'canny', 0, 255, tresh1_callback )
-cv2.createTrackbar('Threshold 2', 'canny', 0, 255, tresh2_callback )
-cv2.createTrackbar('Aperture Size', 'canny', 3, 8, aperture_callback )
-cv2.createTrackbar('L2 Gradient', 'canny', 0, 1, l2_callback )
-
+cv2.createTrackbar('Threshold 1', 'canny', 0, 255, fake_cb )
+cv2.createTrackbar('Threshold 2', 'canny', 0, 255, fake_cb )
+cv2.createTrackbar('Aperture Size', 'canny', 3, 8, fake_cb )
+cv2.createTrackbar('L2 Gradient', 'canny', 0, 1, fake_cb )
 
 cv2.setTrackbarPos('Threshold 1', 'canny', thresh1)
 cv2.setTrackbarPos('Threshold 2', 'canny', thresh2)
 cv2.setTrackbarPos('Aperture Size', 'canny', aperture_sz)
 cv2.setTrackbarPos('L2 Gradient', 'canny', l2_grad)
 
-
-
-
-
-
 cv2.imshow("input", img)
 cv2.imshow("sobel", sobel_img)
-cv2.imshow("canny", canny_img)
+
+while(True):
+
+    cv2.imshow("canny", canny_img)
+
+    key = cv2.waitKey(1)
+    if key == 27: #escape key
+        break
+    
+    thresh1 = min(cv2.getTrackbarPos('Threshold 1', 'canny'), thresh2)
+    cv2.setTrackbarPos('Threshold 1', 'canny', thresh1)
 
 
-# cv2.imwrite(input_file+"-sobel"+extension, sobel_img)
-# cv2.imwrite(input_file+"-canny"+extension, canny_img)
+    thresh2 = max(cv2.getTrackbarPos('Threshold 2', 'canny'), thresh1)
+    cv2.setTrackbarPos('Threshold 2', 'canny', thresh2)
 
-cv2.waitKey(0)
+    aperture_sz = cv2.getTrackbarPos('Aperture Size', 'canny')
+    if( (aperture_sz%2)==0) :
+        aperture_sz = aperture_sz + 1
+    if(aperture_sz > 7):
+        aperture_sz = 7
+    if(aperture_sz < 3):
+        aperture_sz = 3
+    cv2.setTrackbarPos('Aperture Size', 'canny', aperture_sz)
+
+
+    l2_grad = cv2.getTrackbarPos('L2 Gradient', 'canny')
+
+    canny_img = cv2.Canny(img,thresh1,thresh2,apertureSize=aperture_sz, L2gradient=l2_grad)
+
+
+
+print("Canny settings: ")
+print("\t threshold 1: " + str(thresh1))
+print("\t threshold 2: " + str(thresh2))
+print("\t Aperture: " + str(aperture_sz))
+print("\t L2: " + str(l2_grad))
+
+cv2.imwrite(input_file+"-sobel"+extension, sobel_img)
+cv2.imwrite(input_file+"-canny"+extension, canny_img)
+
+# cv2.waitKey(0)
 cv2.destroyAllWindows()
